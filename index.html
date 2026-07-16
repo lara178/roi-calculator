@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locum's Nest: Savings & ROI Calculator</title>
+<style>
+:root{
+  --turquoise:#04b6d0;--turquoise-dark:#01a9b8;--nest-blue:#64d4d6;
+  --dark-navy:#192b4c;--dark-blue:#1a2164;
+  --green:#8bc34a;--orange:#ff9c00;--red:#ff1a4d;--purple:#ce93d8;
+  --pale-grey:#eff4f5;--duck-egg:#f5fbfd;--ice-blue:#e5ffff;
+  --cool-grey:#8b999f;--body-grey:#5a595a;--white:#ffffff;
+  --sh1:0 2px 4px rgba(0,0,0,0.08);--sh2:0 4px 12px rgba(0,0,0,0.12);--sh3:0 8px 24px rgba(25,43,76,0.16);
+  --r5:5px;--r10:10px;--r16:16px;--r25:25px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Proxima Nova','Avenir Next','Segoe UI',sans-serif;background:linear-gradient(180deg,#f7fbfc 0%,#eef4f7 52%,#f7fbfd 100%);color:var(--body-grey);min-height:100vh;}
+.page{max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+
+/* ── Header ── */
+.ln-header{background:linear-gradient(135deg,#128cab 0%,#04b6d0 45%,#64d4d6 100%);border-radius:var(--r16);padding:28px 32px;margin-bottom:20px;box-shadow:var(--sh3);position:relative;overflow:hidden;}
+.ln-header::after{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 70%);}
+.ln-header-inner{position:relative;z-index:1;}
+.ln-eyebrow{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,0.15);font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#fff;margin-bottom:10px;border:1px solid rgba(255,255,255,0.2);}
+.ln-header-top{display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.ln-logo-mark{width:44px;height:44px;background:rgba(255,255,255,0.18);border-radius:var(--r10);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,255,255,0.25);}
+.ln-header h1{font-size:22px;font-weight:800;color:#fff;line-height:1.2;}
+.ln-header-intro{font-size:13px;color:rgba(255,255,255,0.88);line-height:1.6;max-width:620px;margin-top:6px;}
+
+/* ── NHS banner ── */
+.nhs-banner{background:var(--ice-blue);border-radius:var(--r10);padding:10px 16px;font-size:12px;color:var(--dark-navy);margin-bottom:20px;display:flex;align-items:center;gap:10px;border:1px solid rgba(4,182,208,0.25);}
+.nhs-dot{width:8px;height:8px;border-radius:50%;background:var(--turquoise);flex-shrink:0;}
+
+/* ── Section dividers ── */
+.sdiv{display:flex;align-items:center;gap:14px;margin:28px 0 14px;}
+.sdiv-line{flex:1;height:1px;background:rgba(25,43,76,0.1);}
+.sdiv-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;white-space:nowrap;padding:4px 14px;border-radius:999px;}
+.sdiv-savings{background:rgba(4,182,208,0.12);color:var(--turquoise-dark);}
+.sdiv-costs{background:rgba(255,156,0,0.12);color:#a86300;}
+.sdiv-results{background:rgba(25,43,76,0.08);color:var(--dark-navy);}
+
+/* ── Cards ── */
+.card{background:rgba(255,255,255,0.96);border:1px solid rgba(210,225,228,0.9);border-radius:var(--r16);padding:20px 22px;margin-bottom:14px;box-shadow:var(--sh1);}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.card-title{font-size:14px;font-weight:700;color:var(--dark-navy);}
+.card-sub{font-size:11px;color:var(--cool-grey);margin-bottom:12px;line-height:1.5;}
+
+/* ── Pills ── */
+.pill{font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;}
+.p1{background:rgba(4,182,208,0.13);color:var(--turquoise-dark);}
+.p2{background:rgba(26,33,100,0.1);color:var(--dark-blue);}
+.p3{background:rgba(255,156,0,0.14);color:#a86300;}
+.p4{background:rgba(139,195,74,0.16);color:#4a7a18;}
+.pacc{background:rgba(25,43,76,0.08);color:var(--dark-navy);}
+
+/* ── Tags ── */
+.tag{font-size:10px;padding:2px 7px;border-radius:999px;white-space:nowrap;margin-left:4px;}
+.nhs-tag{background:rgba(4,182,208,0.12);color:var(--turquoise-dark);}
+.ln-ev-tag{background:rgba(139,195,74,0.15);color:#4a7a18;}
+
+/* ── Sliders ── */
+.sl-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sl-label{font-size:12px;color:var(--body-grey);flex:1;min-width:0;}
+.sl-track{flex:0 0 160px;}
+.sl-track input[type=range]{width:100%;accent-color:var(--turquoise);cursor:pointer;}
+.sl-val{font-size:13px;font-weight:700;color:var(--dark-navy);min-width:72px;text-align:right;white-space:nowrap;}
+
+/* ── Grade table ── */
+.grade-tbl{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:8px;}
+.grade-tbl th{font-size:10px;color:var(--cool-grey);font-weight:700;padding:0 5px 7px;text-align:right;border-bottom:2px solid rgba(4,182,208,0.2);}
+.grade-tbl th:first-child{text-align:left;}
+.grade-tbl td{padding:5px;border-bottom:1px solid rgba(231,237,238,0.9);vertical-align:middle;}
+.grade-tbl tr:last-child td{border-bottom:none;}
+.grade-tbl input[type=text]{width:100%;border:none;background:transparent;font-size:12px;font-family:inherit;color:var(--dark-navy);font-weight:700;outline:none;padding:2px 0;}
+.grade-tbl input[type=text]:focus{background:rgba(4,182,208,0.06);border-radius:4px;padding:2px 4px;}
+.grade-tbl input[type=number]{width:100%;border:1px solid transparent;background:rgba(245,251,253,0.8);text-align:right;font-size:12px;font-family:inherit;color:var(--dark-blue);font-weight:600;border-radius:4px;padding:3px 5px;outline:none;}
+.grade-tbl input[type=number]:focus{border-color:var(--turquoise);background:#fff;}
+.grade-tbl tfoot td{font-weight:700;background:rgba(4,182,208,0.08);color:var(--dark-navy);border-top:2px solid rgba(4,182,208,0.25);border-bottom:none;font-size:12px;padding:7px 5px;}
+.sav-pos{font-size:12px;font-weight:700;color:#4a7a18;text-align:right;display:block;}
+.sav-no{font-size:12px;color:#ccc;text-align:right;display:block;}
+.sav-tol{font-size:11px;color:var(--orange);text-align:right;display:block;font-style:italic;}
+.spend-cell{font-size:11px;color:var(--cool-grey);text-align:right;display:block;}
+.rm-btn{font-size:16px;color:#ccc;cursor:pointer;background:none;border:none;padding:0 2px;line-height:1;font-family:inherit;}
+.rm-btn:hover{color:var(--red);}
+.add-row-btn{font-size:11px;color:var(--turquoise-dark);cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid rgba(4,182,208,0.3);border-radius:var(--r25);background:rgba(4,182,208,0.07);margin-top:8px;font-family:inherit;}
+.add-row-btn:hover{background:rgba(4,182,208,0.14);}
+.avg-btn{font-size:11px;color:var(--turquoise-dark);cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid rgba(4,182,208,0.3);border-radius:var(--r25);background:rgba(4,182,208,0.07);margin-bottom:10px;font-family:inherit;}
+.avg-btn:hover{background:rgba(4,182,208,0.14);}
+.src-note{font-size:10px;color:var(--cool-grey);margin:6px 0 12px;line-height:1.5;}
+
+/* ── Tolerance box ── */
+.tol-box{background:rgba(255,156,0,0.07);border-radius:var(--r10);padding:12px 16px;margin-top:4px;border:1px solid rgba(255,156,0,0.2);}
+.tol-label{font-size:12px;font-weight:700;color:#a86300;}
+.tol-note{font-size:11px;color:#a86300;margin-top:6px;line-height:1.5;}
+
+/* ── Effective demand box ── */
+.eff-row{margin-top:8px;background:var(--duck-egg);border-radius:var(--r10);padding:9px 14px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(4,182,208,0.15);}
+.eff-label{font-size:12px;color:var(--cool-grey);}
+.eff-val{font-size:13px;font-weight:700;color:var(--turquoise-dark);}
+
+/* ── Accelerator card ── */
+.acc-card{background:rgba(255,255,255,0.96);border:1.5px solid rgba(4,182,208,0.35);border-radius:var(--r16);padding:20px 22px;margin-bottom:14px;box-shadow:var(--sh1);}
+.acc-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+.acc-desc{font-size:12px;color:var(--cool-grey);margin-top:4px;max-width:85%;line-height:1.5;}
+.toggle-wrap input[type=checkbox]{display:none;}
+.toggle-lbl{display:block;width:46px;height:26px;background:#ddd;border-radius:13px;cursor:pointer;position:relative;transition:background .2s;}
+.toggle-lbl::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle-wrap input:checked+.toggle-lbl{background:var(--turquoise);}
+.toggle-wrap input:checked+.toggle-lbl::after{left:23px;}
+
+/* ── Cost card ── */
+.cost-card{background:rgba(255,255,255,0.96);border:1px solid rgba(255,156,0,0.25);border-radius:var(--r16);padding:20px 22px;margin-bottom:14px;box-shadow:var(--sh1);}
+
+/* ── Results dashboard ── */
+.dash{background:linear-gradient(160deg,rgba(25,43,76,0.97),rgba(26,33,100,0.94));border-radius:var(--r16);padding:24px;margin-bottom:14px;box-shadow:var(--sh3);}
+.dash-ev-label{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.1em;font-weight:700;}
+.dash-ev-val{font-size:40px;font-weight:800;color:#fff;line-height:1;margin-bottom:20px;}
+.dash-ev-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;}
+.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.roi-card{background:rgba(255,255,255,0.08);border-radius:var(--r10);padding:12px 14px;border:1px solid rgba(255,255,255,0.1);}
+.roi-label{font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;}
+.roi-val{font-size:18px;font-weight:800;color:#fff;}
+.roi-val.teal{color:var(--nest-blue);}
+.pillar-rows{background:rgba(255,255,255,0.06);border-radius:var(--r10);overflow:hidden;margin-bottom:16px;border:1px solid rgba(255,255,255,0.08);}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:12px;}
+.pr:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.06);}
+.pr-label{color:rgba(255,255,255,0.65);}
+.pr-ev{font-weight:700;color:var(--nest-blue);}
+.pr.total{background:rgba(255,255,255,0.06);}
+.pr.total .pr-label{font-weight:700;color:#fff;font-size:13px;}
+.pr.total .pr-ev{font-size:14px;color:#fff;}
+.net-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.net-card{border-radius:var(--r10);padding:14px;}
+.net-deduct{background:rgba(255,156,0,0.15);border:1px solid rgba(255,156,0,0.25);}
+.net-net{background:rgba(4,182,208,0.18);border:1px solid rgba(4,182,208,0.3);}
+.net-label{font-size:10px;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;}
+.net-deduct .net-label{color:rgba(255,156,0,0.9);}
+.net-net .net-label{color:var(--nest-blue);}
+.net-val{font-size:18px;font-weight:800;}
+.net-deduct .net-val{color:rgba(255,156,0,0.95);}
+.net-net .net-val{color:#fff;}
+.chart-wrap{position:relative;width:100%;height:240px;margin-bottom:16px;}
+.narrative{background:rgba(255,255,255,0.07);border-radius:var(--r10);padding:14px 16px;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;border:1px solid rgba(255,255,255,0.08);}
+.narrative strong{color:#fff;font-weight:700;}
+
+/* ── CTA section ── */
+.cta-section{background:var(--ice-blue);border-radius:var(--r16);padding:24px;margin-bottom:14px;border:1px solid rgba(4,182,208,0.2);text-align:center;}
+.cta-title{font-size:16px;font-weight:800;color:var(--dark-navy);margin-bottom:6px;}
+.cta-sub{font-size:12px;color:var(--cool-grey);margin-bottom:18px;line-height:1.5;}
+.cta-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--r25);font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-decoration:none;transition:transform .15s,box-shadow .15s;}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.cta-btn-primary{background:linear-gradient(135deg,var(--turquoise-dark),var(--turquoise));color:#fff;}
+.cta-btn-secondary{background:#fff;color:var(--dark-navy);border:1.5px solid rgba(25,43,76,0.15);}
+.cta-btn svg{width:16px;height:16px;flex-shrink:0;}
+
+.footer{text-align:center;font-size:10px;color:var(--cool-grey);margin-top:32px;}
+.footer a{color:var(--turquoise-dark);}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ── HEADER ── -->
+<div class="ln-header">
+  <div class="ln-header-inner">
+    <div class="ln-eyebrow">Evidence-based financial model</div>
+    <div class="ln-header-top">
+      <div class="ln-logo-mark">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <rect x="2" y="14" width="5" height="10" rx="1.5" fill="white"/>
+          <rect x="10" y="9" width="5" height="15" rx="1.5" fill="white"/>
+          <rect x="18" y="3" width="5" height="21" rx="1.5" fill="white"/>
+        </svg>
+      </div>
+      <h1>Locum's Nest: Savings &amp; ROI Calculator</h1>
+    </div>
+    <p class="ln-header-intro">Enter your Trust's data below to calculate the evidence-based annual savings achievable through usage of the Locum's Nest platform.</p>
+  </div>
+</div>
+
+<div class="nhs-banner">
+  <div class="nhs-dot"></div>
+  Pre-set with NHS medical locum benchmark averages — adjust any input to reflect your Trust's specific data
+</div>
+
+<!-- ════════════════════════════════════
+     SAVINGS SECTION
+     ════════════════════════════════════ -->
+<div class="sdiv">
+  <div class="sdiv-line"></div>
+  <span class="sdiv-label sdiv-savings">Savings</span>
+  <div class="sdiv-line"></div>
+</div>
+
+<!-- Pillar 1 -->
+<div class="card">
+  <div class="card-head"><span class="pill p1">Pillar 1</span><span class="card-title">Best-value marketplace</span></div>
+  <p class="card-sub">Define your shift pools — enter rates and hours for each category. Savings are calculated only where the rate difference exceeds your quality premium tolerance. Rename, add or remove rows to match your Trust.</p>
+  <button class="avg-btn" onclick="fillAverages()">&#8635; Use NHS benchmark averages</button>
+  <table class="grade-tbl">
+    <thead><tr>
+      <th style="width:20%;">Category</th>
+      <th style="width:10%;">Bank £/hr</th>
+      <th style="width:10%;">Agency £/hr</th>
+      <th style="width:12%;">Bank hrs/yr</th>
+      <th style="width:12%;">Agency hrs/yr</th>
+      <th style="width:12%;">Bank spend</th>
+      <th style="width:12%;">Agency spend</th>
+      <th style="width:10%;">Saving</th>
+      <th style="width:24px;"></th>
+    </tr></thead>
+    <tbody id="p1body"></tbody>
+    <tfoot><tr>
+      <td>Total</td><td></td><td></td>
+      <td id="tot-bh" style="text-align:right;"></td>
+      <td id="tot-ah" style="text-align:right;"></td>
+      <td id="tot-bs" style="text-align:right;"></td>
+      <td id="tot-as" style="text-align:right;"></td>
+      <td id="tot-sav" style="text-align:right;"></td>
+      <td></td>
+    </tr></tfoot>
+  </table>
+  <button class="add-row-btn" id="p1add" onclick="p1Add()">+ Add category</button>
+  <p class="src-note">Benchmark hours: LaingBuisson 2022/23 spend data (£4.6bn agency + £5.8bn bank across ~215 acute Trusts) back-calculated at blended rates — ~170,000 total locum hours per average acute Trust. Rates: NHS agency cap guidelines and Locum's Nest platform data.</p>
+
+  <div class="tol-box">
+    <div class="sl-row" style="margin-bottom:0;">
+      <span class="sl-label tol-label">Quality premium tolerance<span class="tag" style="background:rgba(255,156,0,0.15);color:#a86300;margin-left:6px;">NHS avg 5%</span></span>
+      <div class="sl-track"><input type="range" id="s-tol" min="0" max="20" step="1" value="5" oninput="calcAll()"></div>
+      <span class="sl-val" style="color:#a86300;" id="v-tol">5%</span>
+    </div>
+    <p class="tol-note" id="tol-note"></p>
+  </div>
+</div>
+
+<!-- Pillar 2 -->
+<div class="card">
+  <div class="card-head"><span class="pill p2">Pillar 2</span><span class="card-title">Rate escalation reduction</span></div>
+  <div class="sl-row">
+    <span class="sl-label">% of hours currently at an escalated rate<span class="tag nhs-tag">NHS avg ~30%</span></span>
+    <div class="sl-track"><input type="range" id="s-escpct" min="0" max="80" step="1" value="30" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-escpct">30%</span>
+  </div>
+  <div class="sl-row">
+    <span class="sl-label">Escalation premium above base rate (£/hr)<span class="tag nhs-tag">NHS avg ~£20</span></span>
+    <div class="sl-track"><input type="range" id="s-escprem" min="0" max="100" step="1" value="20" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-escprem">£20</span>
+  </div>
+  <div class="sl-row">
+    <span class="sl-label">Locum's Nest reduction in escalation incidence<span class="tag ln-ev-tag">LN evidence 25%</span></span>
+    <div class="sl-track"><input type="range" id="s-escred" min="0" max="50" step="1" value="25" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-escred">25%</span>
+  </div>
+  <p class="src-note">Escalation rate: surveys suggest 30–75% of agency shifts routinely breach NHS caps (Seven Resourcing / Carnall Farrar). Premium of ~£20/hr reflects typical gap between NHSI cap and actual billed rate. Locum's Nest 25% reduction from partner Trust before/after data.</p>
+</div>
+
+<!-- Pillar 3 -->
+<div class="card">
+  <div class="card-head"><span class="pill p3">Pillar 3</span><span class="card-title">Demand control</span></div>
+  <div class="sl-row">
+    <span class="sl-label">Your estimate of unnecessary / reducible demand (%)<span class="tag nhs-tag">self-reported</span></span>
+    <div class="sl-track"><input type="range" id="s-demand" min="0" max="30" step="0.5" value="8" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-demand">8.0%</span>
+  </div>
+  <div class="sl-row">
+    <span class="sl-label">% of identified demand saving Locum's Nest helps you realise<span class="tag ln-ev-tag">LN evidence</span></span>
+    <div class="sl-track"><input type="range" id="s-demreal" min="0" max="100" step="0.5" value="23.125" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-demreal">23.1%</span>
+  </div>
+  <div class="eff-row">
+    <span class="eff-label">Effective demand reduction (evidence-based)</span>
+    <span class="eff-val" id="v-eff-dem">1.85%</span>
+  </div>
+</div>
+
+<!-- Pillar 4 -->
+<div class="card">
+  <div class="card-head"><span class="pill p4">Pillar 4</span><span class="card-title">Substantive recruitment</span></div>
+  <div class="sl-row">
+    <span class="sl-label">Target bank-to-substantive conversions per year</span>
+    <div class="sl-track"><input type="range" id="s-conv" min="0" max="100" step="1" value="20" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-conv">20</span>
+  </div>
+  <div class="sl-row">
+    <span class="sl-label">% of targets achieved via Locum's Nest platform<span class="tag ln-ev-tag">LN evidence 20%</span></span>
+    <div class="sl-track"><input type="range" id="s-convpct" min="0" max="100" step="5" value="20" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-convpct">20%</span>
+  </div>
+  <div class="sl-row">
+    <span class="sl-label">Saving per conversion (£/year)<span class="tag ln-ev-tag">LN evidence £50k</span></span>
+    <div class="sl-track"><input type="range" id="s-convval" min="10000" max="100000" step="1000" value="50000" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-convval">£50,000</span>
+  </div>
+</div>
+
+<!-- Accelerator -->
+<div class="acc-card">
+  <div class="acc-row">
+    <div>
+      <div class="card-head" style="margin-bottom:4px;"><span class="pill pacc">Pillar 5</span><span class="card-title">Collaborative bank</span></div>
+      <div class="acc-desc">Joining a collaborative bank expands marketplace supply and improves rate control. Toggle on to apply a 5% uplift to Pillar 1 and Pillar 2 savings and see the additional saving below.</div>
+    </div>
+    <div class="toggle-wrap" style="padding-top:6px;">
+      <input type="checkbox" id="collab-tog" onchange="calcAll()">
+      <label class="toggle-lbl" for="collab-tog"></label>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     COSTS SECTION
+     ════════════════════════════════════ -->
+<div class="sdiv">
+  <div class="sdiv-line"></div>
+  <span class="sdiv-label sdiv-costs">Platform cost</span>
+  <div class="sdiv-line"></div>
+</div>
+
+<div class="cost-card">
+  <div class="card-head"><span class="card-title">Locum's Nest platform fee</span></div>
+  <div class="sl-row">
+    <span class="sl-label">Annual Locum's Nest platform cost (£)<span class="tag" style="background:rgba(255,156,0,0.12);color:#a86300;">configurable</span></span>
+    <div class="sl-track"><input type="range" id="s-platform" min="0" max="300000" step="5000" value="80000" oninput="calcAll()"></div>
+    <span class="sl-val" id="v-platform">£80,000</span>
+  </div>
+  <p class="src-note">Adjust to reflect your agreed Locum's Nest contract value. Contact <a href="mailto:sue@locumsnest.co.uk" style="color:var(--turquoise-dark);">sue@locumsnest.co.uk</a> to discuss pricing.</p>
+</div>
+
+<!-- ════════════════════════════════════
+     RESULTS SECTION
+     ════════════════════════════════════ -->
+<div class="sdiv">
+  <div class="sdiv-line"></div>
+  <span class="sdiv-label sdiv-results">Results</span>
+  <div class="sdiv-line"></div>
+</div>
+
+<div class="dash">
+  <div class="dash-ev-label">Evidence-based annual saving</div>
+  <div class="dash-ev-val" id="d-ev">£0</div>
+
+  <div class="roi-grid" style="grid-template-columns:1fr 1fr;">
+    <div class="roi-card"><div class="roi-label">ROI on platform investment</div><div class="roi-val teal" id="d-roi">—</div></div>
+    <div class="roi-card"><div class="roi-label">Payback period</div><div class="roi-val" id="d-payback">—</div></div>
+  </div>
+
+  <div class="pillar-rows">
+    <div class="pr"><span class="pr-label">Pillar 1 — Best-value marketplace</span><span class="pr-ev" id="dr-p1">£0</span></div>
+    <div class="pr"><span class="pr-label">Pillar 2 — Rate escalation reduction</span><span class="pr-ev" id="dr-p2">£0</span></div>
+    <div class="pr"><span class="pr-label">Pillar 3 — Demand control</span><span class="pr-ev" id="dr-p3">£0</span></div>
+    <div class="pr"><span class="pr-label">Pillar 4 — Substantive recruitment</span><span class="pr-ev" id="dr-p4">£0</span></div>
+    <div class="pr"><span class="pr-label">Pillar 5 — Collaborative bank uplift</span><span class="pr-ev" id="dr-p5">£0</span></div>
+    <div class="pr total"><span class="pr-label">Total gross saving</span><span class="pr-ev" id="dr-tot">£0</span></div>
+  </div>
+
+  <div class="net-grid">
+    <div class="net-card net-deduct"><div class="net-label">Less: platform cost</div><div class="net-val" id="d-cost">£0</div></div>
+    <div class="net-card net-net"><div class="net-label">Net saving</div><div class="net-val" id="d-net">£0</div></div>
+  </div>
+
+  <!-- Stacked bar chart -->
+  <div class="chart-wrap"><canvas id="chart"></canvas></div>
+
+  <div class="narrative" id="narrative"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     CALL TO ACTION
+     ════════════════════════════════════ -->
+<div class="cta-section">
+  <div class="cta-title">Ready to unlock these savings for your Trust?</div>
+  <div class="cta-sub">Speak to the Locum's Nest team to discuss your specific needs, validate these figures with your own data, and get a tailored proposal.</div>
+  <div class="cta-btns">
+    <a href="https://locumsnest.co.uk" class="cta-btn cta-btn-primary" target="_blank">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zm0 1.5A4.5 4.5 0 1112.5 8 4.5 4.5 0 018 3.5zm0 2a.75.75 0 00-.75.75v2c0 .199.079.39.22.53l1.5 1.5a.75.75 0 001.06-1.06L8.75 7.94V6.25A.75.75 0 008 5.5z" fill="white"/></svg>
+      Book a call with Locum's Nest
+    </a>
+    <button class="cta-btn cta-btn-secondary" onclick="downloadPDF()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 12.5h10M8 2v8m0 0L5.5 7.5M8 10l2.5-2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Download as PDF
+    </button>
+  </div>
+</div>
+
+<div class="footer">Locum's Nest: Savings &amp; ROI Calculator &nbsp;·&nbsp; Evidence-based model &nbsp;·&nbsp; <a href="https://locumsnest.co.uk" target="_blank">locumsnest.co.uk</a></div>
+
+</div><!-- /page -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let p1rc=0, chart;
+
+const DEFAULTS=[
+  {name:'Consultants',   br:120,ar:110,bh:15000,ah:35000},
+  {name:'Registrars',    br:70, ar:75, bh:35000,ah:40000},
+  {name:'CT1/2 & ST1/2', br:35, ar:40, bh:20000,ah:25000}
+];
+
+function fmtK(n){n=Math.round(n);if(n>=1000000)return'£'+(n/1000000).toFixed(1)+'m';if(n>=1000)return'£'+Math.round(n/1000)+'k';return'£'+n;}
+function fmtFull(n){return'£'+Math.round(n).toLocaleString('en-GB');}
+function fmtN(n){return Math.round(n).toLocaleString('en-GB');}
+function sv(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+
+function sliderSync(){
+  sv('v-platform',fmtFull(+document.getElementById('s-platform').value));
+  sv('v-escpct',document.getElementById('s-escpct').value+'%');
+  sv('v-escprem','£'+document.getElementById('s-escprem').value);
+  sv('v-escred',document.getElementById('s-escred').value+'%');
+  const dem=+document.getElementById('s-demand').value, real=+document.getElementById('s-demreal').value;
+  sv('v-demand',dem.toFixed(1)+'%');
+  sv('v-demreal',real.toFixed(1)+'%');
+  sv('v-eff-dem',(dem*real/100).toFixed(2)+'%');
+  sv('v-conv',document.getElementById('s-conv').value);
+  sv('v-convpct',document.getElementById('s-convpct').value+'%');
+  sv('v-convval',fmtFull(+document.getElementById('s-convval').value));
+  const tol=+document.getElementById('s-tol').value;
+  sv('v-tol',tol+'%');
+  document.getElementById('tol-note').textContent = tol===0
+    ? "No tolerance applied — all rate differences count toward savings."
+    : `Savings are only claimed where the rate difference exceeds ${tol}% of the lower rate. This reflects that Trusts may rationally pay a small premium for a known, high-rated worker — making the case easier to defend with clinical leads.`;
+}
+
+function p1Add(d){
+  const tbody=document.getElementById('p1body');
+  if(tbody.rows.length>=6)return;
+  d=d||{name:'New category',br:'',ar:'',bh:'',ah:''};
+  const id=p1rc++;
+  const tr=document.createElement('tr');
+  tr.id='p1r-'+id;
+  tr.innerHTML=`
+    <td><input type="text" value="${d.name}" oninput="calcAll()"></td>
+    <td><input type="number" value="${d.br}" min="0" step="1" oninput="calcAll()"></td>
+    <td><input type="number" value="${d.ar}" min="0" step="1" oninput="calcAll()"></td>
+    <td><input type="number" value="${d.bh}" min="0" step="1000" oninput="calcAll()"></td>
+    <td><input type="number" value="${d.ah}" min="0" step="1000" oninput="calcAll()"></td>
+    <td><span class="spend-cell" id="p1bs-${id}">—</span></td>
+    <td><span class="spend-cell" id="p1as-${id}">—</span></td>
+    <td><span id="p1es-${id}" class="sav-no">—</span></td>
+    <td><button class="rm-btn" onclick="p1Rem('p1r-${id}')">×</button></td>
+  `;
+  tbody.appendChild(tr);
+  document.getElementById('p1add').style.display=tbody.rows.length>=6?'none':'inline-flex';
+  calcAll();
+}
+
+function p1Rem(id){
+  const el=document.getElementById(id);
+  if(el)el.remove();
+  document.getElementById('p1add').style.display='inline-flex';
+  calcAll();
+}
+
+function fillAverages(){
+  document.getElementById('p1body').innerHTML='';
+  p1rc=0;
+  DEFAULTS.forEach(d=>p1Add(d));
+}
+
+function calcP1(collab,tol){
+  let ev=0,bs=0,as_=0,bh=0,ah=0,bn=0,bd=0;
+  document.querySelectorAll('#p1body tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input[type=number]');
+    const br=parseFloat(ins[0].value)||0, ar=parseFloat(ins[1].value)||0;
+    const bhr=parseFloat(ins[2].value)||0, ahr=parseFloat(ins[3].value)||0;
+    const id=tr.id.replace('p1r-','');
+    const b=bhr*br, a=ahr*ar;
+    bs+=b; as_+=a; bh+=bhr; ah+=ahr; bn+=b+a; bd+=bhr+ahr;
+    const lo=Math.min(br,ar);
+    const dp=lo>0?Math.abs(ar-br)/lo*100:0;
+    const wt=dp<=tol&&br!==ar;
+    let sav=0;
+    if(!wt){if(ar>br)sav=ahr*(ar-br);else if(br>ar)sav=bhr*(br-ar);}
+    const evS=sav*0.75*(collab?1.05:1);
+    ev+=evS;
+    const bsEl=document.getElementById('p1bs-'+id);
+    const asEl=document.getElementById('p1as-'+id);
+    const esEl=document.getElementById('p1es-'+id);
+    if(bsEl)bsEl.textContent=fmtK(b);
+    if(asEl)asEl.textContent=fmtK(a);
+    if(esEl){
+      if(wt&&br!==ar){esEl.textContent='within tolerance';esEl.className='sav-tol';}
+      else if(sav>0){esEl.textContent=fmtK(evS);esEl.className='sav-pos';}
+      else{esEl.textContent='—';esEl.className='sav-no';}
+    }
+  });
+  sv('tot-bh',fmtN(bh)); sv('tot-ah',fmtN(ah));
+  sv('tot-bs',fmtK(bs)); sv('tot-as',fmtK(as_)); sv('tot-sav',fmtK(ev));
+  return{ev,ev_base:ev,hrs:bh+ah,blend:bd>0?bn/bd:0};
+}
+
+function calcAll(){
+  sliderSync();
+  const platform=+document.getElementById('s-platform').value;
+  const collab=document.getElementById('collab-tog').checked;
+  const tol=+document.getElementById('s-tol').value;
+  const p1=calcP1(collab,tol);
+
+  const ep=+document.getElementById('s-escpct').value/100;
+  const eprem=+document.getElementById('s-escprem').value;
+  const er=+document.getElementById('s-escred').value/100;
+  // Base savings without collab uplift
+  const p1_base=calcP1(false,tol);
+  const p2_base=p1_base.hrs*ep*eprem*er;
+  // Collab uplift = difference when collab is on
+  const p5_uplift=collab?((p1.ev-p1_base.ev)+(p1.hrs*ep*eprem*er*0.05)):0;
+  const p2=p1.hrs*ep*eprem*er*(collab?1.05:1);
+
+  const dp=+document.getElementById('s-demand').value/100;
+  const dr=+document.getElementById('s-demreal').value/100;
+  const br=p1.blend>0?p1.blend:70;
+  const p3=p1.hrs*dp*br*dr;
+
+  const conv=+document.getElementById('s-conv').value;
+  const cp=+document.getElementById('s-convpct').value/100;
+  const cv=+document.getElementById('s-convval').value;
+  const p4=conv*cp*cv;
+
+  const tot=p1_base.ev+p2_base+p3+p4+p5_uplift;
+  const net=tot-platform;
+  const roi=platform>0?(tot/platform).toFixed(1)+'x':'—';
+  const pbm=tot>0?Math.round((platform/tot)*12):null;
+  const pb=pbm!==null?(pbm<1?'< 1 month':pbm+' month'+(pbm!==1?'s':'')):'—';
+
+  sv('d-ev',fmtK(tot));
+  sv('d-roi',roi); sv('d-payback',pb);
+  sv('d-cost',fmtFull(platform)); sv('d-net',fmtK(Math.max(net,0)));
+  sv('dr-p1',fmtK(p1_base.ev)); sv('dr-p2',fmtK(p2_base));
+  sv('dr-p3',fmtK(p3)); sv('dr-p4',fmtK(p4));
+  sv('dr-p5',fmtK(p5_uplift)); sv('dr-tot',fmtK(tot));
+
+  const p2h=Math.round(p1.hrs*ep*er);
+  const p4r=Math.round(conv*cp);
+  const tolStr=tol>0?` Savings in Pillar 1 are only claimed where the rate difference exceeds the ${tol}% quality premium tolerance.`:'';
+  document.getElementById('narrative').innerHTML=
+    `Based on your inputs across ${fmtN(p1.hrs)} total locum hours, Locum's Nest can deliver <strong>${fmtK(tot)}</strong> in annual savings.${tolStr} `+
+    `The marketplace pillar realises <strong>${fmtK(p1_base.ev)}</strong> by redirecting hours to the lower-cost channel. `+
+    `Rate control avoids <strong>${fmtK(p2_base)}</strong> by reducing escalation incidence on ~${fmtN(p2h)} hours. `+
+    `Demand control eliminates <strong>${fmtK(p3)}</strong> — equivalent to ${(dp*dr*100).toFixed(2)}% of total demand at blended cost. `+
+    `Substantive recruitment converts ${p4r} staff, saving <strong>${fmtK(p4)}</strong> in year 1. `+
+    (collab?`The collaborative bank (Pillar 5) adds a further <strong>${fmtK(p5_uplift)}</strong> through expanded supply and rate harmonisation. `:'')+
+    `After deducting the <strong>${fmtFull(platform)}</strong> platform cost, net saving is <strong>${fmtK(Math.max(net,0))}</strong> — a <strong>${roi}</strong> return on investment.`;
+
+  if(chart){
+    chart.data.datasets[0].data=[Math.round(p1.ev_base)];
+    chart.data.datasets[1].data=[Math.round(p2_base)];
+    chart.data.datasets[2].data=[Math.round(p3)];
+    chart.data.datasets[3].data=[Math.round(p4)];
+    chart.data.datasets[4].data=[Math.round(p5_uplift)];
+    chart.update();
+  }
+}
+
+function initChart(){
+  const ctx=document.getElementById('chart').getContext('2d');
+  chart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['Total saving'],
+      datasets:[
+        {label:'Pillar 1 — Marketplace',    data:[0],backgroundColor:'#04b6d0',borderRadius:0,stack:'s'},
+        {label:'Pillar 2 — Rate control',     data:[0],backgroundColor:'#4a5ab5',borderRadius:0,stack:'s'},
+        {label:'Pillar 3 — Demand control',   data:[0],backgroundColor:'#ff9c00',borderRadius:0,stack:'s'},
+        {label:'Pillar 4 — Recruitment',      data:[0],backgroundColor:'#8bc34a',borderRadius:0,stack:'s'},
+        {label:'Pillar 5 — Collab bank',      data:[0],backgroundColor:'rgba(255,255,255,0.3)',borderRadius:4,stack:'s'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          display:true,
+          position:'bottom',
+          labels:{color:'rgba(255,255,255,0.7)',font:{size:11},boxWidth:12,padding:16}
+        },
+        tooltip:{
+          callbacks:{
+            label:function(ctx){
+              if(ctx.raw===0)return null;
+              return ' '+ctx.dataset.label+': '+fmtK(ctx.raw);
+            }
+          }
+        }
+      },
+      scales:{
+        x:{stacked:true,ticks:{color:'rgba(255,255,255,0.6)',font:{size:11}},grid:{display:false}},
+        y:{stacked:true,beginAtZero:true,
+          ticks:{color:'rgba(255,255,255,0.5)',font:{size:10},callback:v=>v>=1000000?'£'+(v/1000000).toFixed(1)+'m':v>=1000?'£'+(v/1000).toFixed(0)+'k':'£'+v},
+          grid:{color:'rgba(255,255,255,0.08)'}}
+      }
+    }
+  });
+}
+
+function downloadPDF(){
+  window.print();
+}
+
+DEFAULTS.forEach(d=>p1Add(d));
+initChart();
+calcAll();
+</script>
+
+<style media="print">
+  body{background:#fff;}
+  .cta-section{display:none;}
+  .ln-header{background:#192b4c!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .dash{background:#192b4c!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+</style>
+
+</body>
+</html>
